@@ -1,0 +1,58 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "mapa2.tmx",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "golem1.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "mapa2.tmx": {
+            "scale": 3,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 113.16666666666666,
+                "y": 407.3333333333333
+            }
+        },
+        "tiles1.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 2
+        },
+        "tiles2.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        }
+    },
+    "last.imagePath": "C:/Users/USER/Pictures/Games",
+    "map.height": 32,
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 72,
+    "openFiles": [
+        "mapa2.tmx",
+        "tiles1.tsx",
+        "tiles2.tsx",
+        "golem1.tsx"
+    ],
+    "project": "mapa2.tiled-project",
+    "recentFiles": [
+        "golem1.tsx",
+        "tiles2.tsx",
+        "tiles1.tsx",
+        "mapa2.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    },
+    "tileset.type": 1
+}
