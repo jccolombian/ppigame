@@ -1,0 +1,53 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "mapa3.tmx",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "mapa3.tmx": {
+            "scale": 0.0625,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 4272,
+                "y": 2160
+            }
+        },
+        "piezas1.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 0.0625,
+            "scaleInEditor": 0.125
+        },
+        "tiles.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tiles2.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "C:/Users/USER/Downloads/craftpix-net-381103-free-simple-summer-top-down-vector-tileset/PNG",
+    "map.height": 20,
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 256,
+    "map.tileWidth": 256,
+    "map.width": 30,
+    "openFiles": [
+        "mapa3.tmx",
+        "piezas1.tsx"
+    ],
+    "project": "mapa3.tiled-project",
+    "recentFiles": [
+        "piezas1.tsx",
+        "mapa3.tmx",
+        "tiles.tsx",
+        "tiles2.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.type": 1
+}

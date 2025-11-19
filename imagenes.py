@@ -8,7 +8,7 @@ pygame.font.init()
 class imagen:
     size = VECTOR(100,100)
     coord = VECTOR(10,10)
-    archivo = pygame.image.load('variableImagen').convert_alpha()
+    archivo = pygame.image.load(variableImagen').convert_alpha()
     imagen = pygame.transform.scale(archivo,(size.x,size.y))
     posicion = 0
 '''
@@ -27,6 +27,7 @@ def desplazarFondo(fondo):
     if abs(fondo.posicion) > fondo.size.x:
         fondo.posicion = 0
         
+'''        
 background_layers = [
     {'image': pygame.transform.scale(pygame.image.load('./imagenes/parallax/1.png'),(ANCHO,ALTO)), 'speed': 7, 'pos': 0}, 
     {'image': pygame.transform.scale(pygame.image.load('./imagenes/parallax/2.png'),(ANCHO,ALTO)), 'speed': 5, 'pos': 0},  
@@ -38,7 +39,7 @@ background_layers = [
 
 class parallaxFondo:
     layers = background_layers
-
+'''
 
 def parallax(parallax):
     for layer in parallax.layers:

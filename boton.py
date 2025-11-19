@@ -17,6 +17,7 @@ class boton:
     coord = VECTOR(20,20)
     size = VECTOR(100,50)
     borde = False
+    tipo = 'system' # 'ttf'
 '''
 
 # variable para hacer un boton con un fondo de imagen
@@ -75,7 +76,11 @@ def boton(boton):
 
     pygame.draw.rect(ventana,button_color,boton.boton)    
 
-    letra = pygame.font.SysFont(boton.font,boton.fontSize)
+    if boton.tipo == 'system':
+        letra = pygame.font.SysFont(boton.font,boton.fontSize)
+    else:
+        letra = pygame.font.Font(boton.font,boton.fontSize)
+
     contenido = letra.render(boton.texto,True,boton.colorTexto)
     ventana.blit(
         contenido,

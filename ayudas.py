@@ -14,7 +14,7 @@ FPS = 40
 
 RELOJ = pygame.time.Clock()
 
-TILESIZE = 32
+TILESIZE = 256
 
 ANCHO_MUNDO = TILESIZE*72
 
@@ -35,7 +35,7 @@ pygame.display.set_caption('Aqui va el titulo de la ventana')
 class Ayudas:
     pygame.init()
     EVENTOS = pygame.event.get()
-    actual = 'inicio'
+    actual = 'ventana4'
     usuario = ''
     ACCION = 'ninguna'
 
@@ -82,6 +82,10 @@ arialblack = 'arialblack'
 
 AirstreamTTF = './fonts/Airstream.ttf'
 
+stencil = 'stencil'
+
+dumb3d = './fonts/3Dumb.ttf'
+
 # LISTA DE IMAGENES
 grama = './imagenes/grama.png'
 grama2 = './imagenes/grama2.png'
@@ -103,6 +107,8 @@ sfx = './imagenes/botones/sfx.png'
 sfxs = './imagenes/botones/sfxs.png'
 
 forest2 = './imagenes/fondos/forest2.jpg'
+
+paisajeCiervos = './imagenes/fondos/forest.png'
 
 # ARCHIVOS PLANOS:
 usuarios = './archivos/usuarios.txt'
@@ -426,4 +432,5 @@ def mapa(mapa):
 
 # LISTA DE MAPAS:
 mapa1 = './mapas/mapa1/mapa1.tmx'      
-mapa2 = './mapas/mapa2/mapa2.tmx'        
+mapa2 = './mapas/mapa2/mapa2.tmx'  
+mapa3 = './mapas/mapa3/mapa3.tmx'      

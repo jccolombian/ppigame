@@ -1,0 +1,78 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "Todos los archivos (*)",
+    "fileStates": {
+        "D:/Python/ppigamemartes/mapas/mapa3/mapa3.tmx": {
+            "scale": 0.28203125,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1152.354570637119,
+                "y": 512.3545706371191
+            }
+        },
+        "D:/Python/ppigamemartes/mapas/mapa3/tiles.tsx": {
+            "scaleInDock": 1
+        },
+        "mapa4.tmx": {
+            "scale": 0.084609375,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 3155.6786703601106,
+                "y": 2919.298245614035
+            }
+        },
+        "nice.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "objetos.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tiles1.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 0.1,
+            "scaleInEditor": 0.25
+        },
+        "tileset1.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 0.33,
+            "scaleInEditor": 0.125
+        }
+    },
+    "last.imagePath": "C:/Users/USER/Downloads",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 256,
+    "map.tileWidth": 256,
+    "openFiles": [
+    ],
+    "project": "mapa4.tiled-project",
+    "recentFiles": [
+        "D:/Python/ppigamemartes/mapas/mapa3/mapa3.tmx",
+        "nice.tsx",
+        "tiles1.tsx",
+        "mapa4.tmx",
+        "tilesets.tsx",
+        "tileset1.tsx",
+        "objetos.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 256,
+        "width": 256
+    },
+    "tileset.type": 0
+}

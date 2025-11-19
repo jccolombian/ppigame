@@ -140,8 +140,6 @@ def mover(jugador):
         jugador.sprite.rect.y += variacion.y 
              
 
-      
-
 def cargarAnimaciones(jugador,animacion):
     animaciones = jugador.movimientos[animacion]
     jugador.indice = moverAnimaciones(animaciones,jugador.indice)
@@ -263,6 +261,59 @@ def animaciones(jugador,archivo):
     jugador.movimientos.append(herir) # 6   
     '''     
 
+def animaciones2(jugador,archivo):
+
+    # caminar_derecha:
+    caminar_derecha = []
+
+    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/derecha'))+1):
+        img = pygame.image.load(f'./imagenes/{archivo}/derecha/{i}.png').convert_alpha()
+        caminar_derecha.append(
+            pygame.transform.scale(img,(img.get_width(),img.get_height()))
+        )
+    jugador.movimientos.append(caminar_derecha) # indice 0
+
+    # caminar_izquierda
+    caminar_izquierda = []
+    for sprite in caminar_derecha:
+        caminar_izquierda.append(pygame.transform.flip(sprite,True,False))#imagen,horizontal,vertical
+    jugador.movimientos.append(caminar_izquierda) # 1
+
+    # Bajando:
+    bajando = []
+    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/bajar'))+1):
+        img = pygame.image.load(f'./imagenes/{archivo}/bajar/{i}.png').convert_alpha()
+        bajando.append(
+            pygame.transform.scale(img,(img.get_width(),img.get_height()))
+        )
+    jugador.movimientos.append(bajando) # 2
+
+    
+
+    # Subiendo:
+    subiendo = []
+    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/subir'))+1):
+        img = pygame.image.load(f'./imagenes/{archivo}/subir/{i}.png').convert_alpha()
+        subiendo.append(
+            pygame.transform.scale(img,(img.get_width(),img.get_height()))
+        )
+    jugador.movimientos.append(subiendo) # 3
+
+    
+def jugador2(jugador):
+
+    sprite = Sprite()
+    imagen = pygame.image.load(jugador.imagen).convert_alpha()
+    sprite.image = pygame.transform.scale(imagen,(jugador.size.x,jugador.size.y))
+    sprite.rect = sprite.image.get_rect() 
+    sprite.rect.x = jugador.coord.x
+    sprite.rect.y = jugador.coord.y  
+
+    jugador.sprite = sprite
+    jugador.hitbox = jugador.sprite.rect.inflate(0,-2)
+
+    animaciones2(jugador,jugador.archivo)
+
 def jugador(jugador):
 
     sprite = Sprite()
@@ -275,4 +326,50 @@ def jugador(jugador):
     jugador.sprite = sprite
 
     animaciones(jugador,jugador.archivo)
+
+def mover2(jugador):
+
+    jugador.direccion = pygame.math.Vector2()
+    jugador.velocidad = 64
+
+    tecla = pygame.key.get_pressed()
+
+    if tecla[pygame.K_UP]:
+        Ayudas.ACCION = 'subiendo'
+        jugador.direccion.y = -jugador.velocidad
+        cargarAnimaciones(jugador,3)
+    elif tecla[pygame.K_DOWN]:
+        Ayudas.ACCION = 'bajando'
+        jugador.direccion.y = jugador.velocidad
+        cargarAnimaciones(jugador,2)
+    else:
+        jugador.direccion.y = 0
+
+    if tecla[pygame.K_RIGHT]:
+        Ayudas.ACCION = 'derecha'
+        jugador.direccion.x = jugador.velocidad
+        cargarAnimaciones(jugador,0)
+    elif tecla[pygame.K_LEFT]:
+        Ayudas.ACCION = 'izquierda'
+        jugador.direccion.x = -jugador.velocidad
+        cargarAnimaciones(jugador,1)
+    else:
+        jugador.direccion.x = 0
+
+    if jugador.direccion.magnitude() != 0:
+        jugador.direccion = jugador.direccion.normalize()
+
+    jugador.hitbox.center += jugador.direccion*jugador.velocidad
+
+    jugador.sprite.rect.center = jugador.hitbox.center    
      
+    for plataforma in COLISIONES:    
+            if plataforma.rect.colliderect(jugador.hitbox):
+                if Ayudas.ACCION == 'derecha':
+                    jugador.hitbox.right = plataforma.rect.left
+                if Ayudas.ACCION == 'izquierda':
+                    jugador.hitbox.left = plataforma.rect.right    
+                if Ayudas.ACCION == 'subiendo':
+                    jugador.hitbox.top = plataforma.rect.bottom
+                if Ayudas.ACCION == 'bajando':
+                    jugador.hitbox.bottom = plataforma.rect.top        
