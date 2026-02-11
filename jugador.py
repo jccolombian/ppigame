@@ -299,6 +299,24 @@ def animaciones2(jugador,archivo):
         )
     jugador.movimientos.append(subiendo) # 3
 
+    # Esperando:
+    esperando = []
+    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/esperando'))+1):
+        img = pygame.image.load(f'./imagenes/{archivo}/esperando/{i}.png').convert_alpha()
+        esperando.append(
+            pygame.transform.scale(img,(img.get_width(),img.get_height()))
+        )
+    jugador.movimientos.append(esperando) # 4
+
+    # Esperando2:
+    esperando2 = []
+    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/esperando2'))+1):
+        img = pygame.image.load(f'./imagenes/{archivo}/esperando2/{i}.png').convert_alpha()
+        esperando2.append(
+            pygame.transform.scale(img,(img.get_width(),img.get_height()))
+        )
+    jugador.movimientos.append(esperando2) # 5
+
     
 def jugador2(jugador):
 
@@ -330,7 +348,6 @@ def jugador(jugador):
 def mover2(jugador):
 
     jugador.direccion = pygame.math.Vector2()
-    jugador.velocidad = 64
 
     tecla = pygame.key.get_pressed()
 
@@ -341,6 +358,7 @@ def mover2(jugador):
     elif tecla[pygame.K_DOWN]:
         Ayudas.ACCION = 'bajando'
         jugador.direccion.y = jugador.velocidad
+        jugador.sonido_saltando.play()
         cargarAnimaciones(jugador,2)
     else:
         jugador.direccion.y = 0
@@ -356,8 +374,42 @@ def mover2(jugador):
     else:
         jugador.direccion.x = 0
 
+    if Ayudas.ACCION == 'pausado_derecha':
+        cargarAnimaciones(jugador,4)
+
+    if Ayudas.ACCION == 'pausado_izquierda':
+        cargarAnimaciones(jugador,4)    
+
+    if Ayudas.ACCION == 'pausado_bajando':
+        cargarAnimaciones(jugador,4)      
+
+    if Ayudas.ACCION == 'pausado_subiendo':
+        cargarAnimaciones(jugador,5)     
+
     if jugador.direccion.magnitude() != 0:
         jugador.direccion = jugador.direccion.normalize()
+
+    if Ayudas.ACCION == 'saltando_derecha':
+        jugador.direccion.y = -2
+        jugador.direccion.x = 3
+        cargarAnimaciones(jugador,0)
+
+    if Ayudas.ACCION == 'pausado_saltando_derecha':
+        jugador.direccion.y = 2
+        jugador.direccion.x = 0
+        cargarAnimaciones(jugador,0)   
+        Ayudas.ACCION = 'pausado_derecha'  
+
+    if Ayudas.ACCION == 'saltando_izquierda':
+        jugador.direccion.y = -2
+        jugador.direccion.x = -3
+        cargarAnimaciones(jugador,1)
+
+    if Ayudas.ACCION == 'pausado_saltando_izquierda':
+        jugador.direccion.y = 2
+        jugador.direccion.x = 0
+        cargarAnimaciones(jugador,1)   
+        Ayudas.ACCION = 'pausado_izquierda'    
 
     jugador.hitbox.center += jugador.direccion*jugador.velocidad
 
@@ -366,10 +418,12 @@ def mover2(jugador):
     for plataforma in COLISIONES:    
             if plataforma.rect.colliderect(jugador.hitbox):
                 if Ayudas.ACCION == 'derecha':
-                    jugador.hitbox.right = plataforma.rect.left
+                    jugador.hitbox.right = plataforma.rect.left      
                 if Ayudas.ACCION == 'izquierda':
                     jugador.hitbox.left = plataforma.rect.right    
                 if Ayudas.ACCION == 'subiendo':
                     jugador.hitbox.top = plataforma.rect.bottom
                 if Ayudas.ACCION == 'bajando':
                     jugador.hitbox.bottom = plataforma.rect.top        
+
+    print(Ayudas.ACCION)                

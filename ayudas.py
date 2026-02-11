@@ -14,7 +14,7 @@ FPS = 40
 
 RELOJ = pygame.time.Clock()
 
-TILESIZE = 256
+TILESIZE = 64
 
 ANCHO_MUNDO = TILESIZE*72
 

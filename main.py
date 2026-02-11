@@ -33,9 +33,16 @@ if __name__ == '__main__':
             if evento.type == pygame.KEYUP:
                 if evento.key == pygame.K_RIGHT:
                     Ayudas.ACCION = 'pausado_derecha'    
-
                 if evento.key == pygame.K_LEFT:
                     Ayudas.ACCION = 'pausado_izquierda'    
+                if evento.key == pygame.K_DOWN:
+                    Ayudas.ACCION = 'pausado_bajando'     
+                if evento.key == pygame.K_UP:
+                    Ayudas.ACCION = 'pausado_subiendo'    
+                if evento.key == pygame.K_RSHIFT:
+                    Ayudas.ACCION = 'pausado_saltando_derecha'
+                if evento.key == pygame.K_LSHIFT:
+                    Ayudas.ACCION = 'pausado_saltando_izquierda'     
 
             if evento.type == pygame.KEYDOWN:    
                 if evento.key == pygame.K_RSHIFT:
