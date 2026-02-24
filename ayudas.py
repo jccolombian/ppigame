@@ -9,16 +9,17 @@ import math
 pygame.init()
 
 pygame.font.init()
+import pygame.freetype
 
-FPS = 40
+FPS = 30
 
 RELOJ = pygame.time.Clock()
 
 TILESIZE = 64
 
-ANCHO_MUNDO = TILESIZE*72
+ANCHO_MUNDO = TILESIZE*72 #(4608)
 
-ALTO_MUNDO = TILESIZE*32
+ALTO_MUNDO = TILESIZE*32 #(2304)
 
 info = pygame.display.Info()
 
@@ -35,6 +36,7 @@ pygame.display.set_caption('Aqui va el titulo de la ventana')
 class Ayudas:
     pygame.init()
     EVENTOS = pygame.event.get()
+    DT = 0
     actual = 'ventana4'
     usuario = ''
     ACCION = 'ninguna'
@@ -79,6 +81,8 @@ letra6 = './fonts/Anagram.ttf'
 letra7 = './fonts/VT323-Regular.ttf'
 
 arialblack = 'arialblack'
+
+arial = 'arial'
 
 AirstreamTTF = './fonts/Airstream.ttf'
 
@@ -182,20 +186,20 @@ class texto:
 '''
 
 def mostrarTextoSistema(texto):
-    letra = pygame.font.SysFont(texto.font,texto.size)
+    letra = pygame.freetype.SysFont(texto.font,texto.size)
     ventana.blit(letra.render(str(texto.texto),
                                   True,texto.color),
                                   (texto.coord.x,texto.coord.y))    
 
 def mostrarTextoTTF(texto):
-    letra = pygame.font.Font(texto.font,texto.size)
+    letra = pygame.freetype.Font(texto.font,texto.size)
     ventana.blit(letra.render(str(texto.texto),
                                   True,texto.color),
                                   (texto.coord.x,texto.coord.y))  
     
 
 def mostrarTextoLargoSistema(texto):
-    letra = pygame.font.SysFont(texto.font,texto.size)
+    letra = pygame.freetype.SysFont(texto.font,texto.size)
     y = texto.coord.y
     for linea in texto.texto:
         ventana.blit(letra.render(str(linea),
@@ -205,7 +209,7 @@ def mostrarTextoLargoSistema(texto):
 
 
 def mostrarTextoSistemaMaquinaDeEscribir(texto):
-    letra = pygame.font.SysFont(texto.font,texto.size)
+    letra = pygame.freetype.SysFont(texto.font,texto.size)
     if texto.contador < texto.velocidad * len(texto.texto):
         texto.contador += 1
   
@@ -214,7 +218,7 @@ def mostrarTextoSistemaMaquinaDeEscribir(texto):
                                   (texto.coord.x,texto.coord.y))
 
 def mostrarTextoTTFMaquinaDeEscribir(texto):
-    letra = pygame.font.Font(texto.font,texto.size)
+    letra = pygame.freetype.Font(texto.font,texto.size)
     if texto.contador < texto.velocidad * len(texto.texto):
         texto.contador += 1
   
@@ -224,7 +228,7 @@ def mostrarTextoTTFMaquinaDeEscribir(texto):
 
 
 def mostrarTextoLargoSistemaMaquinaDeEscribir(texto):
-    letra = pygame.font.SysFont(texto.font,texto.size)
+    letra = pygame.freetype.SysFont(texto.font,texto.size)
 
     if texto.contador < texto.velocidad * len(texto.linea):
         texto.contador += 1
@@ -301,7 +305,7 @@ def error(mensaje):
     tablero = pygame.Surface((ancho,alto))  
     tablero.fill(blanco)
     
-    font = pygame.font.SysFont('Arial', 24)
+    font = pygame.freetype.SysFont('Arial', 24)
     paso = 10
 
     for texto in mensaje:
@@ -338,7 +342,7 @@ def info(mensaje):
     tablero.set_alpha(64)
     tablero.fill((220,20,60))
     
-    font = pygame.font.SysFont('Arial', 24)
+    font = pygame.freetype.SysFont('Arial', 24)
     paso = 10
 
     for texto in mensaje:
@@ -359,6 +363,8 @@ PLATAFORMAS = pygame.sprite.Group()
 CAMARA = pygame.sprite.Group()
 
 COLISIONES = pygame.sprite.Group()   
+
+FONDO = pygame.sprite.Group()
 
 PORTAL = pygame.sprite.Group()
 
@@ -390,7 +396,17 @@ def emptySprites():
 def camara(jugador):
     offset.x = jugador.sprite.rect.centerx-MEDIO_ANCHO
     offset.y = jugador.sprite.rect.centery-MEDIO_ALTO
-    for sprite in CAMARA:
+    
+    sprites_fondo = [s for s in CAMARA if s in COLISIONES or s in FONDO]
+    sprites_otros = [s for s in CAMARA if s not in sprites_fondo]
+    
+    for sprite in sprites_fondo:
+        offset_pos = sprite.rect.topleft - offset
+        ventana.blit(sprite.image, offset_pos)
+    
+    sprites_ordenados = sorted(sprites_otros, key=lambda s: s.rect.bottom - offset.y)
+
+    for sprite in sprites_ordenados:
         offset_pos = sprite.rect.topleft-offset
         if sprite in ROTAN:
             sprite_x = offset_pos.x + 25 * math.cos(math.radians(sprite.angulo))
@@ -398,7 +414,7 @@ def camara(jugador):
             ventana.blit(sprite.image,(sprite_x, sprite_y))
         elif sprite in GIRAN:
             imagen_rotada = pygame.transform.rotate(sprite.image,sprite.angulo)
-            ventana.blit(imagen_rotada,imagen_rotada.get_rect(center=(offset_pos.x,offset_pos.y)))      
+            ventana.blit(imagen_rotada,imagen_rotada.get_rect(center=(offset_pos.x,offset_pos.y)))   
         else:
             ventana.blit(sprite.image,offset_pos) 
 
@@ -434,3 +450,28 @@ def mapa(mapa):
 mapa1 = './mapas/mapa1/mapa1.tmx'      
 mapa2 = './mapas/mapa2/mapa2.tmx'  
 mapa3 = './mapas/mapa3/mapa3.tmx'      
+
+'''
+class barrasalud:
+    coord = VECTOR(10,10)
+    size = VECTOR(300,30)
+    salud = 100
+    max = 100
+    colorFondo = 
+    colorFrente = 
+'''
+    
+def barradesalud(barra):
+
+    salud = barra.salud /barra.max
+
+    pygame.draw.rect(ventana, barra.colorFondo, (barra.coord.x,barra.coord.y,barra.size.x,barra.size.y))
+    pygame.draw.rect(ventana, barra.colorFrente, (barra.coord.x,barra.coord.y,barra.size.x*salud,barra.size.y))
+
+
+class Temporizador:
+    inicio = pygame.time.get_ticks()
+    duracion = 5
+
+def reiniciarTemporizador():
+    Temporizador.inicio = pygame.time.get_ticks()    

@@ -14,9 +14,17 @@ class Jugador:
     velocidad = VECTOR((0,0))
     indice = 0
     movimientos = []
+    # son necesarios si esta en 2d
     saltando = False
     enTierra = True
     sonido_saltando = #poner variable de audio
+    # son necesario si va a hablar
+    dialogo = None
+    dialogo_timer = 0
+    # son necesarios si solo se mueve en una dirección y se devuelve
+    direccion = 1
+    VELOCIDAD_ANIMACIONES = pygame.USEREVENT + 1
+    pygame.time.set_timer(VELOCIDAD_ANIMACIONES, 800)
 '''  
 
 def mover(jugador):
@@ -156,43 +164,51 @@ def moverAnimaciones(animaciones,actual):
     return actual     
 
    
-def moverIzquierdaDerecha(jugador,limiteIzquierdo,limiteDerecho):
+def moverIzquierdaDerecha(jugador, limiteIzquierdo, limiteDerecho):
 
-    jugador.coord.x -= 1 * jugador.direccion
-
-    if jugador.direccion > 0: 
-        
-        animaciones = jugador.movimientos[1]
-
-        for event in Ayudas.EVENTOS:
-            if event.type == jugador.VELOCIDAD_ANIMACIONES:
-                if jugador.indice < len(animaciones)-1:
-                    jugador.indice += 1    
-                else:
-                    jugador.indice = 0    
-
-        jugador.sprite.image = animaciones[jugador.indice] 
-    else:      
-        animaciones = jugador.movimientos[0]
-        
-        for event in Ayudas.EVENTOS:
-            if event.type == jugador.VELOCIDAD_ANIMACIONES:
-                if jugador.indice < len(animaciones)-1:
-                    jugador.indice += 1    
-                else:
-                    jugador.indice = 0   
-
-        jugador.sprite.image = animaciones[jugador.indice] 
-
+    # Mover jugador
+    jugador.coord.x -= 2 * jugador.direccion
+    
+    # Actualizar animación
+    animaciones = jugador.movimientos[1 if jugador.direccion > 0 else 0]
+    for event in Ayudas.EVENTOS:
+        if event.type == jugador.VELOCIDAD_ANIMACIONES:
+            jugador.indice = (jugador.indice + 1) % len(animaciones)
+            break
+    
+    jugador.sprite.image = animaciones[jugador.indice]
+    
+    # Verificar condiciones de cambio de dirección
     if jugador.coord.x <= limiteIzquierdo:
         jugador.direccion *= -1
-
+    
     if jugador.coord.x >= limiteDerecho:
         jugador.direccion *= -1
-        
+    
     jugador.sprite.rect.topleft = jugador.coord
-           
 
+def moverArribaAbajo(jugador,limiteArriba,limiteAbajo):
+    # Mover jugador
+    jugador.coord.y -= 2 * jugador.direccion
+    
+    # Actualizar animación
+    animaciones = jugador.movimientos[3 if jugador.direccion > 0 else 2]
+    for event in Ayudas.EVENTOS:
+        if event.type == jugador.VELOCIDAD_ANIMACIONES:
+            jugador.indice = (jugador.indice + 1) % len(animaciones)
+            break
+    
+    jugador.sprite.image = animaciones[jugador.indice]
+    
+    # Verificar condiciones de cambio de dirección
+    if jugador.coord.y <= limiteArriba:
+        jugador.direccion *= -1
+    
+    if jugador.coord.y >= limiteAbajo:
+        jugador.direccion *= -1
+    
+    jugador.sprite.rect.topleft = jugador.coord
+    
 def estanCerca(jugador1, jugador2,umbral):
     rect1 = jugador1.sprite.rect
     rect2 = jugador2.sprite.rect
@@ -316,8 +332,7 @@ def animaciones2(jugador,archivo):
             pygame.transform.scale(img,(img.get_width(),img.get_height()))
         )
     jugador.movimientos.append(esperando2) # 5
-
-    
+  
 def jugador2(jugador):
 
     sprite = Sprite()
@@ -358,7 +373,7 @@ def mover2(jugador):
     elif tecla[pygame.K_DOWN]:
         Ayudas.ACCION = 'bajando'
         jugador.direccion.y = jugador.velocidad
-        jugador.sonido_saltando.play()
+        #jugador.sonido_saltando.play()
         cargarAnimaciones(jugador,2)
     else:
         jugador.direccion.y = 0
@@ -415,7 +430,8 @@ def mover2(jugador):
 
     jugador.sprite.rect.center = jugador.hitbox.center    
      
-    for plataforma in COLISIONES:    
+    
+    for plataforma in COLISIONES:   
             if plataforma.rect.colliderect(jugador.hitbox):
                 if Ayudas.ACCION == 'derecha':
                     jugador.hitbox.right = plataforma.rect.left      
@@ -426,4 +442,16 @@ def mover2(jugador):
                 if Ayudas.ACCION == 'bajando':
                     jugador.hitbox.bottom = plataforma.rect.top        
 
-    print(Ayudas.ACCION)                
+    
+
+def hablar(jugador, texto, duracion=3000):
+        """Hacer que el sprite diga algo durante un tiempo (en milisegundos)"""
+        jugador.dialogo = texto
+        jugador.dialogo_timer = duracion       
+
+def actualizarDialogo(jugador, dt):
+        """Actualizar el temporizador de diálogo"""
+        if jugador.dialogo_timer > 0:
+            jugador.dialogo_timer -= dt
+            if jugador.dialogo_timer <= 0:
+                jugador.dialogo = None                  

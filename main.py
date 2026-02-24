@@ -55,4 +55,4 @@ if __name__ == '__main__':
         eval(Ayudas.actual+'()')
 
         pygame.display.update()
-        RELOJ.tick(FPS)
+        Ayudas.DT = RELOJ.tick(FPS)
