@@ -188,13 +188,13 @@ class texto:
 def mostrarTextoSistema(texto):
     letra = pygame.freetype.SysFont(texto.font,texto.size)
     ventana.blit(letra.render(str(texto.texto),
-                                  True,texto.color),
+                                  texto.color)[0],
                                   (texto.coord.x,texto.coord.y))    
 
 def mostrarTextoTTF(texto):
     letra = pygame.freetype.Font(texto.font,texto.size)
     ventana.blit(letra.render(str(texto.texto),
-                                  True,texto.color),
+                                  texto.color)[0],
                                   (texto.coord.x,texto.coord.y))  
     
 
@@ -203,7 +203,7 @@ def mostrarTextoLargoSistema(texto):
     y = texto.coord.y
     for linea in texto.texto:
         ventana.blit(letra.render(str(linea),
-                                    True,texto.color),
+                                    texto.color)[0],
                                     (texto.coord.x,y))
         y += 30        
 
@@ -214,7 +214,7 @@ def mostrarTextoSistemaMaquinaDeEscribir(texto):
         texto.contador += 1
   
     ventana.blit(letra.render(str(texto.texto[0:texto.contador//texto.velocidad]),
-                                  True,texto.color),
+                                  texto.color)[0],
                                   (texto.coord.x,texto.coord.y))
 
 def mostrarTextoTTFMaquinaDeEscribir(texto):
@@ -223,7 +223,7 @@ def mostrarTextoTTFMaquinaDeEscribir(texto):
         texto.contador += 1
   
     ventana.blit(letra.render(str(texto.texto[0:texto.contador//texto.velocidad]),
-                                  True,texto.color),
+                                  texto.color)[0],
                                   (texto.coord.x,texto.coord.y)) 
 
 
@@ -244,7 +244,7 @@ def mostrarTextoLargoSistemaMaquinaDeEscribir(texto):
                 texto.contador = 0
 
     ventana.blit(letra.render(str(texto.linea[0:texto.contador//texto.velocidad]),
-                                  True,texto.color),
+                                  texto.color)[0],
                                   (texto.coord.x,texto.coord.y))
     
 # variable texto que parpadea:
@@ -309,7 +309,7 @@ def error(mensaje):
     paso = 10
 
     for texto in mensaje:
-        text_surface = font.render(texto,True,negro)
+        text_surface = font.render(texto,negro)[0]
         tablero.blit(text_surface, (10, paso))
         paso += 30
 
@@ -346,7 +346,7 @@ def info(mensaje):
     paso = 10
 
     for texto in mensaje:
-        text_surface = font.render(texto,True,negro)
+        text_surface = font.render(texto,negro)[0]
         tablero.blit(text_surface, (10, paso))
         paso += 30
 
