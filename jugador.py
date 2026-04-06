@@ -14,11 +14,12 @@ class Jugador:
     velocidad = VECTOR((0,0))
     indice = 0
     movimientos = []
+    vida = 100
     # son necesarios si esta en 2d
     saltando = False
     enTierra = True
     sonido_saltando = #poner variable de audio
-    # son necesario si va a hablar
+    # son necesarios si va a hablar
     dialogo = None
     dialogo_timer = 0
     # son necesarios si solo se mueve en una dirección y se devuelve
@@ -33,137 +34,142 @@ def mover(jugador):
 
     teclas = pygame.key.get_pressed()
 
-    if not Ayudas.ACCION == 'dead':
+    if Ayudas.ACCION == 'dead':
+        return
 
-        if teclas[K_RIGHT]:
-            Ayudas.ACCION = 'derecha'
-            variacion.x += 4 
-            cargarAnimaciones(jugador,0)
-            jugador.enTierra = False
+    if teclas[K_RIGHT]:
+        Ayudas.ACCION = 'derecha'
+        variacion.x += 4 
+        cargarAnimaciones(jugador,0)
 
-        elif teclas[K_LEFT]:
-            Ayudas.ACCION = 'izquierda'
-            variacion.x -= 4
-            cargarAnimaciones(jugador,1)
-            jugador.enTierra = False
+    elif teclas[K_LEFT]:
+        Ayudas.ACCION = 'izquierda'
+        variacion.x -= 4
+        cargarAnimaciones(jugador,1)
 
-        elif Ayudas.ACCION == 'pausado_derecha':
-            cargarAnimaciones(jugador,2)    
-            jugador.enTierra = True
+    elif Ayudas.ACCION == 'pausado_derecha':
+        cargarAnimaciones(jugador,2)    
+        
+    elif Ayudas.ACCION == 'pausado_izquierda':
+        cargarAnimaciones(jugador,3)   
+        
+    # --- SALTO ---
+    if (teclas[pygame.K_RSHIFT] or teclas[pygame.K_LSHIFT]) and not jugador.saltando and jugador.enTierra:
+        jugador.sonido_saltando.play()
+        jugador.velocidad.y = -30
+        cargarAnimaciones(jugador, 4)
+        jugador.saltando = True
+        jugador.enTierra = False
 
-        elif Ayudas.ACCION == 'pausado_izquierda':
-            cargarAnimaciones(jugador,3)   
-            jugador.enTierra = True
-            
-        elif teclas[pygame.K_RSHIFT] and not jugador.saltando:
-            jugador.sonido_saltando.play()
-            jugador.velocidad.y = -30
-            cargarAnimaciones(jugador,4)  
-            jugador.enTierra = False
-            jugador.saltando = True
-
-        elif teclas[pygame.K_LSHIFT] and not jugador.saltando:
-            jugador.sonido_saltando.play()
-            jugador.velocidad.y = -30
-            cargarAnimaciones(jugador,5)    
-            jugador.enTierra = False 
-            jugador.saltando = True
-
-        if not jugador.enTierra:
-            jugador.velocidad.y += 2
-
+    # --- GRAVEDAD ---
+    if not jugador.enTierra:
+        jugador.velocidad.y += 2
         if jugador.velocidad.y > 30:
-            jugador.velocidad.y = 25    
+            jugador.velocidad.y = 25   
 
-        variacion.y += jugador.velocidad.y    
+    variacion.y += jugador.velocidad.y    
 
-        for plataforma in PLATAFORMAS:    
-            # colision en x:
-            if plataforma.rect.colliderect(jugador.sprite.rect.x + variacion.x,
-                                        jugador.sprite.rect.y, 
-                                        jugador.size.x,jugador.size.y):
-                
-                variacion.x = 0     
+    # --- COLISIONES ---
+    rect_jugador = pygame.Rect(
+        jugador.sprite.rect.x + variacion.x,
+        jugador.sprite.rect.y + variacion.y,
+        jugador.size.x,
+        jugador.size.y
+    )
 
-            # colision en y:          
-            if plataforma.rect.colliderect(jugador.sprite.rect.x,
-                                        jugador.sprite.rect.y+variacion.y, 
-                                        jugador.size.x,jugador.size.y):
-                
-                # saltando y por debajo del suelo:
-                if jugador.velocidad.y < 0:
-                    variacion.y = plataforma.rect.bottom-jugador.sprite.rect.top
-                    jugador.velocidad.y = 0
-                # callendo y por encima del suelo:    
-                elif jugador.velocidad.y >= 0:
-                    variacion.y = plataforma.rect.top-jugador.sprite.rect.bottom    
-                    jugador.velocidad.y = 0
-                    jugador.saltando = False # Para volver a saltar de nuevo
+    # Colisiones con plataformas normales
+    _colisionar_plataformas(jugador, variacion, PLATAFORMAS, False)
+    
+    # Colisiones con plataformas inclinadas
+    _colisionar_plataformas(jugador, variacion, INCLINADAS1, True)
+    _colisionar_plataformas(jugador, variacion, INCLINADAS2, True)
 
-        for plataforma in INCLINADAS1:
-            
-            # colision en y:          
-            if jugador.sprite.rect.colliderect(plataforma.rect):
+    # --- APLICAR MOVIMIENTO ---
+    jugador.sprite.rect.x += variacion.x
+    jugador.sprite.rect.y += variacion.y
 
-                
+def _colisionar_plataformas(jugador, variacion, plataformas, inclinada=False):
+    """Maneja colisiones con un grupo de plataformas"""
+    
+    rect_jugador = pygame.Rect(
+        jugador.sprite.rect.x + variacion.x,
+        jugador.sprite.rect.y + variacion.y,
+        jugador.size.x,
+        jugador.size.y
+    )
 
-                if Ayudas.ACCION == 'derecha': # subiendo superficie inclinada
-                    variacion.x += 2
-                    variacion.y -= 4
-                    jugador.velocidad.y = 0
+    for plataforma in plataformas:
+        if not rect_jugador.colliderect(plataforma.rect):
+            continue
 
-                elif Ayudas.ACCION == 'izquierda':  # bajando superficie inclinada
-                    variacion.x -= 2
-                    variacion.y += 1
-                    jugador.velocidad.y = 0  
+        if inclinada:
+            _colisionar_inclinada(jugador, variacion, plataforma)
+        else:
+            _colisionar_normal(jugador, variacion, plataforma)
 
-                elif jugador.velocidad.y >= 0:
-                    variacion.y = plataforma.rect.top-jugador.sprite.rect.bottom  + 11 
-                    jugador.velocidad.y = 0
-                    jugador.saltando = False # Para volver a saltar de nuevo    
+def _colisionar_normal(jugador, variacion, plataforma):
+    """Colisión con plataforma horizontal"""
+    
+    # Colisión en X
+    rect_x = pygame.Rect(
+        jugador.sprite.rect.x + variacion.x,
+        jugador.sprite.rect.y,
+        jugador.size.x,
+        jugador.size.y
+    )
+    if rect_x.colliderect(plataforma.rect):
+        variacion.x = 0
 
-        for plataforma in INCLINADAS2:
-            
-            # colision en y:          
-            if jugador.sprite.rect.colliderect(plataforma.rect):
-                
-                
-                
-                if Ayudas.ACCION == 'derecha':  # bajando superficie inclinada
-                    variacion.x += 2
-                    variacion.y += 1
-                    jugador.velocidad.y = 0
+    # Colisión en Y
+    if jugador.velocidad.y < 0:  # Saltando (golpeando techo)
+        variacion.y = plataforma.rect.bottom - jugador.sprite.rect.top
+    elif jugador.velocidad.y >= 0:  # Cayendo (pisando suelo)
+        variacion.y = plataforma.rect.top - jugador.sprite.rect.bottom
+        jugador.saltando = False
+        jugador.enTierra = True
 
-                elif Ayudas.ACCION == 'izquierda':  # subiendo superficie inclinada
-                    variacion.x -= 2
-                    variacion.y -= 3.5
-                    jugador.velocidad.y = 0
+    jugador.velocidad.y = 0
 
-                elif jugador.velocidad.y >= 0:
-                    variacion.y = plataforma.rect.top-jugador.sprite.rect.bottom + 11
-                    jugador.velocidad.y = 0
-                    jugador.saltando = False # Para volver a saltar de nuevo    
+def _colisionar_inclinada(jugador, variacion, plataforma):
+    """Colisión con plataforma inclinada"""
+    
+    if Ayudas.ACCION == 'derecha':
+        variacion.x += 2
+        variacion.y -= 4
+    elif Ayudas.ACCION == 'izquierda':
+        variacion.x -= 2
+        variacion.y += 1
+    elif jugador.velocidad.y >= 0:
+        variacion.y = plataforma.rect.top - jugador.sprite.rect.bottom + 11
+        jugador.saltando = False
+        jugador.enTierra = True
 
-        jugador.sprite.rect.x += variacion.x
-        jugador.sprite.rect.y += variacion.y 
-             
+    jugador.velocidad.y = 0         
 
-def cargarAnimaciones(jugador,animacion):
+def cargarAnimaciones(jugador, animacion):
+    """Carga y actualiza la animación del jugador"""
+    
+    # Validaciones
+    if not jugador.movimientos or animacion >= len(jugador.movimientos):
+        return
+    
     animaciones = jugador.movimientos[animacion]
-    jugador.indice = moverAnimaciones(animaciones,jugador.indice)
-    jugador.sprite.image = animaciones[jugador.indice]     
+    
+    if not animaciones:
+        return
+    
+    # Mover a la siguiente imagen
+    jugador.indice = moverAnimaciones(animaciones, jugador.indice)
+    jugador.sprite.image = animaciones[jugador.indice]  
 
-
-def moverAnimaciones(animaciones,actual):
-
-    if actual < len(animaciones)-1:
-        actual += 1    
+def moverAnimaciones(animaciones, actual):
+    """Avanza al siguiente frame de la animación"""
+    
+    if actual < len(animaciones) - 1:
+        return actual + 1
     else:
-        actual = 0    
+        return 0     
 
-    return actual     
-
-   
 def moverIzquierdaDerecha(jugador, limiteIzquierdo, limiteDerecho):
 
     # Mover jugador
@@ -275,63 +281,30 @@ def animaciones(jugador,archivo):
             pygame.transform.scale(img,(img.get_width()*2,img.get_height()*2))
         )
     jugador.movimientos.append(herir) # 6   
-    '''     
-
-def animaciones2(jugador,archivo):
-
-    # caminar_derecha:
-    caminar_derecha = []
-
-    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/derecha'))+1):
-        img = pygame.image.load(f'./imagenes/{archivo}/derecha/{i}.png').convert_alpha()
-        caminar_derecha.append(
-            pygame.transform.scale(img,(img.get_width(),img.get_height()))
-        )
-    jugador.movimientos.append(caminar_derecha) # indice 0
-
-    # caminar_izquierda
-    caminar_izquierda = []
-    for sprite in caminar_derecha:
-        caminar_izquierda.append(pygame.transform.flip(sprite,True,False))#imagen,horizontal,vertical
-    jugador.movimientos.append(caminar_izquierda) # 1
-
-    # Bajando:
-    bajando = []
-    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/bajar'))+1):
-        img = pygame.image.load(f'./imagenes/{archivo}/bajar/{i}.png').convert_alpha()
-        bajando.append(
-            pygame.transform.scale(img,(img.get_width(),img.get_height()))
-        )
-    jugador.movimientos.append(bajando) # 2
-
+    ''' 
+        
+def animaciones2(jugador, archivo):
+    """Cargar animaciones del jugador"""
     
-
-    # Subiendo:
-    subiendo = []
-    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/subir'))+1):
-        img = pygame.image.load(f'./imagenes/{archivo}/subir/{i}.png').convert_alpha()
-        subiendo.append(
-            pygame.transform.scale(img,(img.get_width(),img.get_height()))
-        )
-    jugador.movimientos.append(subiendo) # 3
-
-    # Esperando:
-    esperando = []
-    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/esperando'))+1):
-        img = pygame.image.load(f'./imagenes/{archivo}/esperando/{i}.png').convert_alpha()
-        esperando.append(
-            pygame.transform.scale(img,(img.get_width(),img.get_height()))
-        )
-    jugador.movimientos.append(esperando) # 4
-
-    # Esperando2:
-    esperando2 = []
-    for i in range(1,len(os.listdir(f'./imagenes/{archivo}/esperando2'))+1):
-        img = pygame.image.load(f'./imagenes/{archivo}/esperando2/{i}.png').convert_alpha()
-        esperando2.append(
-            pygame.transform.scale(img,(img.get_width(),img.get_height()))
-        )
-    jugador.movimientos.append(esperando2) # 5
+    def cargar_animacion(ruta):
+        try:
+            archivos = sorted([f for f in os.listdir(ruta) if f.endswith('.png')])
+            return [pygame.image.load(os.path.join(ruta, f)).convert_alpha() for f in archivos]
+        except FileNotFoundError:
+            print(f"Error: No se encontró {ruta}")
+            return []
+    
+    ruta_base = f'./imagenes/{archivo}'
+    
+    # Cargar animaciones
+    derecha = cargar_animacion(f'{ruta_base}/derecha')
+    izquierda = [pygame.transform.flip(img, True, False) for img in derecha]
+    bajar = cargar_animacion(f'{ruta_base}/bajar')
+    subir = cargar_animacion(f'{ruta_base}/subir')
+    esperando = cargar_animacion(f'{ruta_base}/esperando')
+    esperando2 = cargar_animacion(f'{ruta_base}/esperando2')
+    
+    jugador.movimientos = [derecha, izquierda, bajar, subir, esperando, esperando2]
   
 def jugador2(jugador):
 
@@ -343,7 +316,7 @@ def jugador2(jugador):
     sprite.rect.y = jugador.coord.y  
 
     jugador.sprite = sprite
-    jugador.hitbox = jugador.sprite.rect.inflate(0,-2)
+    jugador.hitbox = jugador.sprite.rect.inflate(-2, -2)
 
     animaciones2(jugador,jugador.archivo)
 
@@ -441,8 +414,6 @@ def mover2(jugador):
                     jugador.hitbox.top = plataforma.rect.bottom
                 if Ayudas.ACCION == 'bajando':
                     jugador.hitbox.bottom = plataforma.rect.top        
-
-    
 
 def hablar(jugador, texto, duracion=3000):
         """Hacer que el sprite diga algo durante un tiempo (en milisegundos)"""

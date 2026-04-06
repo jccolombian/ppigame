@@ -11,7 +11,7 @@ pygame.init()
 pygame.font.init()
 import pygame.freetype
 
-FPS = 30
+FPS = 60
 
 RELOJ = pygame.time.Clock()
 
@@ -37,7 +37,7 @@ class Ayudas:
     pygame.init()
     EVENTOS = pygame.event.get()
     DT = 0
-    actual = 'ventana4'
+    actual = ''
     usuario = ''
     ACCION = 'ninguna'
 
@@ -473,5 +473,5 @@ class Temporizador:
     inicio = pygame.time.get_ticks()
     duracion = 5
 
-def reiniciarTemporizador():
-    Temporizador.inicio = pygame.time.get_ticks()    
+def reiniciarTemporizador(t):
+    t.inicio = pygame.time.get_ticks()    

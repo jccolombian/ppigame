@@ -8,7 +8,7 @@ pygame.font.init()
 class imagen:
     size = VECTOR(100,100)
     coord = VECTOR(10,10)
-    archivo = pygame.image.load(variableImagen').convert_alpha()
+    archivo = pygame.image.load(variable Imagen).convert_alpha()
     imagen = pygame.transform.scale(archivo,(size.x,size.y))
     posicion = 0
 '''

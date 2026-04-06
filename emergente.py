@@ -11,7 +11,7 @@ class Ventanaemergente:
     titulo = 'titulo'
     mensaje = 'mensaje'
 
-def emergente(emergente):
+def emergente(emergente,boton):
 
     # Fuente
     font = pygame.font.SysFont("Arial", 24)
@@ -28,6 +28,7 @@ def emergente(emergente):
 
             if aceptar.collidepoint(mouse_pos):
                 emergente.show = False  # Cierra el popup    
+                boton.click = False
                 
 
     if emergente.show:
