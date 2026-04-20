@@ -1,8 +1,4 @@
 from ayudas import *
-from ventana1 import *
-from ventana2 import *
-from ventana3 import *
-from ventana4 import *
 
 
 
