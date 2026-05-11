@@ -37,7 +37,7 @@ class Ayudas:
     pygame.init()
     EVENTOS = pygame.event.get()
     DT = 0
-    actual = ''
+    actual = 'ventana1'
     usuario = ''
     ACCION = 'ninguna'
 
@@ -420,21 +420,40 @@ def camara(jugador):
 
 def mapa(mapa):
     datos_mapa = load_pygame(mapa)
+    
+    # Cache para tiles escalados (evita recalcular el mismo tile)
+    tile_cache = {}
+    
     for capa in datos_mapa.visible_layers:
-        if hasattr(capa,'data'):
-            for x,y,surf in capa.tiles():
+        if hasattr(capa, 'data'):
+            for x, y, surf in capa.tiles():
+                if surf is None:
+                    continue
+                
+                # Obtener el ID único del tile (o usar la imagen misma como clave)
+                tile_key = (surf.get_width(), surf.get_height(), id(surf))
+                
+                # Escalar solo si no está en caché
+                if tile_key not in tile_cache:
+                    tile_cache[tile_key] = pygame.transform.scale(surf, (TILESIZE, TILESIZE))
+                
+                # Usar la imagen escalada de la caché
+                resized_image = tile_cache[tile_key]
+                
+                # Crear sprite (reconsiderar si necesitas un Sprite para cada tile)
                 sprite = pygame.sprite.Sprite()
-                sprite.image = surf
-                resized_image = pygame.transform.scale(sprite.image,(TILESIZE,TILESIZE))
                 sprite.image = resized_image
-                sprite.rect = sprite.image.get_rect() 
-                sprite.rect.x = x*TILESIZE
-                sprite.rect.y = y*TILESIZE 
-                if capa.name == 'portal':
-                    PORTAL.add(sprite)
-                else:                   
-                    PLATAFORMAS.add(sprite) 
-                CAMARA.add(sprite)    
+                sprite.rect = sprite.image.get_rect()
+                sprite.rect.x = x * TILESIZE
+                sprite.rect.y = y * TILESIZE
+
+                if capa.name == 'borde' or capa.name == 'muros':
+                    COLISIONES.add(sprite)
+
+                if capa.name == 'piso':
+                    FONDO.add(sprite)
+
+                CAMARA.add(sprite)
     if 'objetos' in [layer.name for layer in datos_mapa.layers]:            
         for objeto in datos_mapa.get_layer_by_name('objetos'):
             sprite = pygame.sprite.Sprite()

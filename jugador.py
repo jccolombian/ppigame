@@ -11,7 +11,7 @@ class Jugador:
     imagen = './imagenes/.png'
     size = VECTOR((64,128))
     coord = VECTOR((32,64))
-    velocidad = VECTOR((0,0))
+    velocidad = 64
     indice = 0
     movimientos = []
     vida = 100
@@ -334,86 +334,114 @@ def jugador(jugador):
     animaciones(jugador,jugador.archivo)
 
 def mover2(jugador):
-
-    jugador.direccion = pygame.math.Vector2()
-
+    # 1. Calcular movimiento base (Vector de velocidad)
+    movimiento_x = 0
+    movimiento_y = 0
+    
     tecla = pygame.key.get_pressed()
 
+    # Lógica para movimiento vertical (separado del horizontal para permitir diagonales)
     if tecla[pygame.K_UP]:
-        Ayudas.ACCION = 'subiendo'
-        jugador.direccion.y = -jugador.velocidad
-        cargarAnimaciones(jugador,3)
+        movimiento_y = -jugador.velocidad
+        Ayudas.ACCION = 'subiendo' # Solo para referencia de animación si es estricto
+        cargarAnimaciones(jugador, 3)
     elif tecla[pygame.K_DOWN]:
+        movimiento_y = jugador.velocidad
         Ayudas.ACCION = 'bajando'
-        jugador.direccion.y = jugador.velocidad
-        #jugador.sonido_saltando.play()
-        cargarAnimaciones(jugador,2)
+        # jugador.sonido_saltando.play()
+        cargarAnimaciones(jugador, 2)
     else:
-        jugador.direccion.y = 0
+        movimiento_y = 0
+        # Opcional: Resetear acción vertical si no hay tecla, cuidado con sobreescritura abajo
 
+    # Lógica para movimiento horizontal
     if tecla[pygame.K_RIGHT]:
-        Ayudas.ACCION = 'derecha'
-        jugador.direccion.x = jugador.velocidad
-        cargarAnimaciones(jugador,0)
+        movimiento_x = jugador.velocidad
+        Ayudas.ACCION = 'derecha' # Solo para referencia
+        cargarAnimaciones(jugador, 0)
     elif tecla[pygame.K_LEFT]:
-        Ayudas.ACCION = 'izquierda'
-        jugador.direccion.x = -jugador.velocidad
-        cargarAnimaciones(jugador,1)
+        movimiento_x = -jugador.velocidad
+        Ayudas.ACCION = 'izquierda' # Solo para referencia
+        cargarAnimaciones(jugador, 1)
     else:
-        jugador.direccion.x = 0
+        movimiento_x = 0
 
-    if Ayudas.ACCION == 'pausado_derecha':
-        cargarAnimaciones(jugador,4)
-
-    if Ayudas.ACCION == 'pausado_izquierda':
-        cargarAnimaciones(jugador,4)    
-
+    # Manejo de estados especiales (pausado, saltando) que sobrescriben la dirección
+    # Nota: Asegúrate de que estas condiciones no entren en conflicto con las teclas de movimiento
+    if Ayudas.ACCION == 'pausado_derecha' or Ayudas.ACCION == 'pausado_izquierda':
+        cargarAnimaciones(jugador, 4)
+        # Opcional: Resetear movimiento si está pausado
+        # movimiento_x = 0 
     if Ayudas.ACCION == 'pausado_bajando':
-        cargarAnimaciones(jugador,4)      
-
+        cargarAnimaciones(jugador, 4)
     if Ayudas.ACCION == 'pausado_subiendo':
-        cargarAnimaciones(jugador,5)     
+        cargarAnimaciones(jugador, 5)
 
-    if jugador.direccion.magnitude() != 0:
-        jugador.direccion = jugador.direccion.normalize()
-
+    # Sobrescritura para saltos específicos (si aplica)
     if Ayudas.ACCION == 'saltando_derecha':
-        jugador.direccion.y = -2
-        jugador.direccion.x = 3
-        cargarAnimaciones(jugador,0)
-
+        movimiento_y = -2
+        movimiento_x = 3
+        cargarAnimaciones(jugador, 0)
     if Ayudas.ACCION == 'pausado_saltando_derecha':
-        jugador.direccion.y = 2
-        jugador.direccion.x = 0
-        cargarAnimaciones(jugador,0)   
-        Ayudas.ACCION = 'pausado_derecha'  
+        movimiento_y = 2
+        movimiento_x = 0
+        cargarAnimaciones(jugador, 0)
+        Ayudas.ACCION = 'pausado_derecha'
 
     if Ayudas.ACCION == 'saltando_izquierda':
-        jugador.direccion.y = -2
-        jugador.direccion.x = -3
-        cargarAnimaciones(jugador,1)
-
+        movimiento_y = -2
+        movimiento_x = -3
+        cargarAnimaciones(jugador, 1)
     if Ayudas.ACCION == 'pausado_saltando_izquierda':
-        jugador.direccion.y = 2
-        jugador.direccion.x = 0
-        cargarAnimaciones(jugador,1)   
-        Ayudas.ACCION = 'pausado_izquierda'    
+        movimiento_y = 2
+        movimiento_x = 0
+        cargarAnimaciones(jugador, 1)
+        Ayudas.ACCION = 'pausado_izquierda'
 
-    jugador.hitbox.center += jugador.direccion*jugador.velocidad
+    # Normalización diagonal (opcional, si quieres velocidad constante en diagonales)
+    # Si ya usaste valores fijos arriba (como en saltando_derecha), salta esto o ajústalo
+    if movimiento_x != 0 and movimiento_y != 0:
+        vector_dir = pygame.math.Vector2(movimiento_x, movimiento_y)
+        if vector_dir.magnitude() != 0:
+            vector_dir = vector_dir.normalize()
+            movimiento_x = vector_dir.x * jugador.velocidad # Mantener velocidad base
+            movimiento_y = vector_dir.y * jugador.velocidad
 
-    jugador.sprite.rect.center = jugador.hitbox.center    
-     
+    # --- RESOLUCIÓN DE COLISIONES EN EJES SEPARADOS ---
+
+    # PASO 1: Mover en Eje X
+    jugador.hitbox.x += movimiento_x
+
+    # Verificar colisiones en X
+    for plataforma in COLISIONES:
+        if plataforma.rect.colliderect(jugador.hitbox):
+            # Si nos movimos a la derecha y chocamos
+            if movimiento_x > 0:
+                jugador.hitbox.right = plataforma.rect.left
+            # Si nos movimos a la izquierda y chocamos
+            elif movimiento_x < 0:
+                jugador.hitbox.left = plataforma.rect.right
+
+    # PASO 2: Mover en Eje Y
+    jugador.hitbox.y += movimiento_y
+
+    # Verificar colisiones en Y
+    for plataforma in COLISIONES:
+        if plataforma.rect.colliderect(jugador.hitbox):
+            # Si nos movimos hacia arriba (subiendo) y chocamos (techo)
+            if movimiento_y < 0:
+                jugador.hitbox.top = plataforma.rect.bottom
+            # Si nos movimos hacia abajo (bajando) y chocamos (suelo)
+            elif movimiento_y > 0:
+                jugador.hitbox.bottom = plataforma.rect.top
+
+    # Actualizar sprite y vector de dirección final
+    jugador.sprite.rect.center = jugador.hitbox.center
     
-    for plataforma in COLISIONES:   
-            if plataforma.rect.colliderect(jugador.hitbox):
-                if Ayudas.ACCION == 'derecha':
-                    jugador.hitbox.right = plataforma.rect.left      
-                if Ayudas.ACCION == 'izquierda':
-                    jugador.hitbox.left = plataforma.rect.right    
-                if Ayudas.ACCION == 'subiendo':
-                    jugador.hitbox.top = plataforma.rect.bottom
-                if Ayudas.ACCION == 'bajando':
-                    jugador.hitbox.bottom = plataforma.rect.top        
+    # Actualizar la dirección del jugador basada en el movimiento final (útil para físicas posteriores)
+    jugador.direccion = pygame.math.Vector2(movimiento_x, movimiento_y)
+    if jugador.direccion.magnitude() != 0:
+        jugador.direccion = jugador.direccion.normalize()      
 
 def hablar(jugador, texto, duracion=3000):
         """Hacer que el sprite diga algo durante un tiempo (en milisegundos)"""
